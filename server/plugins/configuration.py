@@ -37,6 +37,8 @@ class OAuthConfig:
     google_client_id: str
     github_client_id: str
     github_client_secret: str
+    client_id: str
+    client_secret: str
 
     def __init__(self, subyaml: dict):
         self.authoritative_domains = subyaml.get("authoritative_domains", [])
@@ -44,6 +46,8 @@ class OAuthConfig:
         self.google_client_id = subyaml.get("google_client_id", "")
         self.github_client_id = subyaml.get("github_client_id", "")
         self.github_client_secret = subyaml.get("github_client_secret", "")
+        self.client_id = subyaml.get("client_id", "")
+        self.client_secret = subyaml.get("client_secret", "")
 
 
 class DBConfig:
