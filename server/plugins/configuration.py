@@ -39,6 +39,7 @@ class OAuthConfig:
     github_client_secret: str
     client_id: str
     client_secret: str
+    redirect_uri: str
 
     def __init__(self, subyaml: dict):
         self.authoritative_domains = subyaml.get("authoritative_domains", [])
@@ -48,7 +49,7 @@ class OAuthConfig:
         self.github_client_secret = subyaml.get("github_client_secret", "")
         self.client_id = subyaml.get("client_id", "")
         self.client_secret = subyaml.get("client_secret", "")
-
+        self.redirect_uri = subyaml.get("redirect_uri", "")
 
 class DBConfig:
     hostname: str
