@@ -2,9 +2,6 @@
 import re
 import requests
 
-# disable SSL checks (development)
-from requests.packages.urllib3.exceptions import InsecureRequestWarning
-requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
 
 async def process(formdata, session, server):
     js = None
