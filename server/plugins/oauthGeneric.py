@@ -11,7 +11,7 @@ async def process(formdata, session, server):
     formdata["return_type"] = "code"
     formdata["redirect_uri"] = server.config.oauth.redirect_uri + "?key=" + formdata["key"]
     js = None
-    m = re.match(r"https?://(.+)/", formdata["oauth_token"])
+    m = re.match(r"https?://([^/]+)/", formdata["oauth_token"])
     if m:
         oauth_domain = m.group(1)
         headers = {"User-Agent": "Pony Mail OAuth Agent/0.1"}
