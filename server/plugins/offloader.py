@@ -20,7 +20,7 @@
 import asyncio
 import concurrent.futures
 
-DEBUG = False
+DEBUG = True
 
 
 class ExecutorPool:
