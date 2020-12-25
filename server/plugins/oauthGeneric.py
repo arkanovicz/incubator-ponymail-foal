@@ -5,6 +5,10 @@ from requests.packages.urllib3.exceptions import InsecureRequestWarning
 requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
 
 async def process(formdata, session, server):
+    formdata["client_id"] = server.config.oauth.client_id
+    formdata["client_secret"] = server.config.oauth.client_secret
+    formdata["grant_type"] = "authorization_code"
+    formdata["return_type"] = "code"
     js = None
     m = re.match(r"https?://(.+)/", formdata["oauth_token"])
     if m:
