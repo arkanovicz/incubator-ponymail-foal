@@ -1,7 +1,8 @@
 # Generic OAuth plugin
 import re
 import requests
-
+from requests.packages.urllib3.exceptions import InsecureRequestWarning
+requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
 
 async def process(formdata, session, server):
     js = None
