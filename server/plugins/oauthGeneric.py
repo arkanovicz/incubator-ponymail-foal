@@ -9,7 +9,7 @@ async def process(formdata, session, server):
     formdata["client_secret"] = server.config.oauth.client_secret
     formdata["grant_type"] = "authorization_code"
     formdata["return_type"] = "code"
-    formdata["redirect_uri"] = server.config.oauth.redirect_uri . "?key=" . formdata["key"]
+    formdata["redirect_uri"] = server.config.oauth.redirect_uri + "?key=" + formdata["key"]
     js = None
     m = re.match(r"https?://(.+)/", formdata["oauth_token"])
     if m:
