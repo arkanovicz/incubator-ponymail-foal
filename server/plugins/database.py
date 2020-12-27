@@ -61,24 +61,28 @@ class Database:
         )
 
     async def search(self, index="", **kwargs):
+        print('[es] search ' + ', '.join(['{}={!r}'.format(k, v) for k, v in kwargs.items()]))
         if not index:
             index = self.dbs.mbox
         res = await self.client.search(index=index, **kwargs)
         return res
 
     async def get(self, index="", **kwargs):
+        print('[es] get ' + ', '.join(['{}={!r}'.format(k, v) for k, v in kwargs.items()]))
         if not index:
             index = self.dbs.mbox
         res = await self.client.get(index=index, **kwargs)
         return res
 
     async def delete(self, index="", **kwargs):
+        print('[es] delete ' + ', '.join(['{}={!r}'.format(k, v) for k, v in kwargs.items()]))
         if not index:
             index = self.dbs.session
         res = await self.client.delete(index=index, **kwargs)
         return res
 
     async def index(self, index="", **kwargs):
+        print('[es] index ' + ', '.join(['{}={!r}'.format(k, v) for k, v in kwargs.items()]))
         if not index:
             index = self.dbs.session
         res = await self.client.index(index=index, **kwargs)
