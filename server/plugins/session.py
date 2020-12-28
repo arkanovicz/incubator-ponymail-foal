@@ -29,6 +29,8 @@ import plugins.server
 import copy
 import typing
 
+from elasticsearch_dsl import Search
+
 FOAL_MAX_SESSION_AGE = 86400 * 7  # Max 1 week between visits before voiding a session
 FOAL_SAVE_SESSION_INTERVAL = 3600  # Update sessions on disk max once per hour
 
@@ -41,6 +43,7 @@ class SessionCredentials:
     authoritative: bool
     admin: bool
     oauth_data: dict
+    acl: list
 
     def __init__(self, doc):
         if doc:
@@ -59,6 +62,7 @@ class SessionCredentials:
             self.authoritative = False
             self.admin = False
             self.oauth_data = {}
+        self.acl = []
 
 
 class SessionObject:
@@ -208,6 +212,8 @@ async def save_session(session: SessionObject):
             "updated": session.last_accessed,
         },
     )
+    if session.credentials and session.credentials.authoritative:
+        await refresh_acl(session)
 
 
 async def remove_session(session: SessionObject):
@@ -237,3 +243,18 @@ async def save_credentials(session: SessionObject):
             },
         },
     )
+
+# fetch or refresh ACL
+async def refresh_acl(session: SessionObject):
+    assert session.credentials and session.credentials.authoritative
+    s = (
+        Search().source(["list"])
+        .query("match", private=True)
+        .filter("term", members=session.credentials.email)
+    )
+    
+    lists = await session.database.search(
+        index=session.database.dbs.mailinglist,
+        body=s.to_dict()
+    )
+    session.credentials.acl = list(map(lambda x: x['_id'], lists['hits']['hits']))

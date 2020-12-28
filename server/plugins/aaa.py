@@ -39,8 +39,7 @@ def can_access_email(session: plugins.session.SessionObject, email) -> bool:
 
 def can_access_list(session: plugins.session.SessionObject, listid) -> bool:
     """Determine if a list can be accessed by the current user"""
-    # If logged in via a known oauth, we assume access for now...TO BE CHANGED
     if session.credentials and session.credentials.authoritative:
-        return True
+        return listid.replace("@", ".") in session.credentials.acl
     else:
         return False

@@ -606,6 +606,9 @@ class Archiver(object):  # N.B. Also used by import-mbox.py
             and mlist.description
             and mlist.list_name
         ):
+            # CB TODO - two problems here:
+            # - '<>' should be stripped from document id
+            # - "_id" is redundant with "list"
             elastic.index(
                 index=elastic.db_mailinglist,
                 id=lid,
