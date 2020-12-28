@@ -255,6 +255,7 @@ async def refresh_acl(session: SessionObject):
     
     lists = await session.database.search(
         index=session.database.dbs.mailinglist,
+        size=1000,
         body=s.to_dict()
     )
     session.credentials.acl = list(map(lambda x: x['_id'], lists['hits']['hits']))
