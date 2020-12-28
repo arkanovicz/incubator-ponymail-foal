@@ -35,6 +35,7 @@ class DBNames:
         self.account = f"{dbprefix}-account"
         self.session = f"{dbprefix}-session"
         self.notification = f"{dbprefix}-notification"
+        self.mailinglist = f"{dbprefix}-mailinglist"
 
 
 DBError = elasticsearch.ElasticsearchException
