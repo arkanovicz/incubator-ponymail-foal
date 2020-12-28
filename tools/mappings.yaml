@@ -35,6 +35,8 @@ mailinglist:
       type: keyword
     name:
       type: keyword
+    private:
+      type: boolean
 mbox:
   properties:
     attachments:
