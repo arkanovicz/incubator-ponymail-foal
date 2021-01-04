@@ -40,7 +40,7 @@ import plugins.session
 PONYMAIL_FOAL_VERSION = "0.1.0"
 
 import debugpy
-debugpy.listen(5678)
+debugpy.listen("0.0.0.0", 5678)
 print("Waiting for debugger attach")
 debugpy.wait_for_client()
 debugpy.breakpoint()
