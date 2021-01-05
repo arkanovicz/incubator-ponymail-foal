@@ -28,18 +28,19 @@ async def process(
 ) -> dict:
     prefs: dict = {"login": {}}
     lists: dict = {}
-    for ml, entry in server.data.lists.items():
-        if "@" in ml:
-            lname, ldomain = ml.split("@", 1)
-            can_access = True
-            if entry.get("private", False):
-                can_access = plugins.aaa.can_access_list(session, ml)
-            if can_access:
-                if ldomain not in lists:
-                    lists[ldomain] = {}
-                lists[ldomain][lname] = entry["count"]
+    if session and session.credentials and session.credentials.authoritative:
+        for ml, entry in server.data.lists.items():
+            if "@" in ml:
+                lname, ldomain = ml.split("@", 1)
+                can_access = True
+                if entry.get("private", False):
+                    can_access = plugins.aaa.can_access_list(session, ml)
+                if can_access:
+                    if ldomain not in lists:
+                        lists[ldomain] = {}
+                    lists[ldomain][lname] = entry["count"]
     prefs["lists"] = lists
-    if session and session.credentials:
+    if session and session.credentials and session.credentials.authoritative:
         prefs['login'] = {
             "credentials": {
                 "uid": session.credentials.uid,
