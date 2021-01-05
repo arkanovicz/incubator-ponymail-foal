@@ -55,14 +55,17 @@ async def get_lists(database: plugins.configuration.DBConfig) -> dict:
     s = Search(using=client, index=database.db_prefix + "-mbox").query(
         "match", private=False
     )
-    s.aggs.bucket("per_list", "terms", field="list_raw")
-
+    s.aggs.bucket("per_list", "terms", field="list_raw", size=10000)
+    
+    print("[background] querying public lists: %s" % s.to_dict())
+    
     res = await client.search(
         index=database.db_prefix + "-mbox", body=s.to_dict(), size=0
     )
 
     for ml in res["aggregations"]["per_list"]["buckets"]:
         list_name = ml["key"].strip("<>").replace(".", "@", 1)
+        print("[background] Found list %s, %d emails, private: %s" % (list_name, ml["doc_count"], False))
         lists[list_name] = {
             "count": ml["doc_count"],
             "private": False,
@@ -72,14 +75,17 @@ async def get_lists(database: plugins.configuration.DBConfig) -> dict:
     s = Search(using=client, index=database.db_prefix + "-mbox").query(
         "match", private=True
     )
-    s.aggs.bucket("per_list", "terms", field="list_raw")
+    s.aggs.bucket("per_list", "terms", field="list_raw", size=10000)
 
+    print("[background] querying private lists: %s" % s.to_dict())
+    
     res = await client.search(
         index=database.db_prefix + "-mbox", body=s.to_dict(), size=0
     )
 
     for ml in res["aggregations"]["per_list"]["buckets"]:
         list_name = ml["key"].strip("<>").replace(".", "@", 1)
+        print("[background] Found list %s, %d emails, private: %s" % (list_name, ml["doc_count"], True))
         lists[list_name] = {
             "count": ml["doc_count"],
             "private": True,
