@@ -26,7 +26,7 @@ import plugins.session
 def can_access_email(session: plugins.session.SessionObject, email) -> bool:
     """Determine if an email can be accessed by the current user"""
     # If public email, it can always be accessed
-    if not email.get("private"):
+    if session.credentials and session.credentials.authoritative and not email.get("private"):
         return True
     else:
         # If user can access the list, they can read the email
