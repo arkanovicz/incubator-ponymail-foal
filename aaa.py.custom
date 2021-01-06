@@ -1,0 +1,94 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+"""
+This is the AAA library for Pony Mail codename Foal
+It handles rights management for lists.
+"""
+
+import os
+import plugins.session
+import threading
+
+from string import whitespace
+
+# mailing lists per user
+acl = None
+
+# lock protect non-reentrant methods
+lock = threading.Lock()
+
+def populate_acl():
+    """Expects a postfix-like aliases file"""
+    global acl
+    global lock
+    if acl is None:
+        lock.acquire()
+        try:
+            if acl is None:
+                acl = {}
+                aliases_path = os.environ['ponymail_aliases_path']
+                if aliases_path and os.access(aliases_path, os.R_OK):
+                    try:
+                        curr_list = None
+                        aliases_file = open(aliases_path, 'r')
+                        for line in aliases_file:
+                            if not line or line[0] == '#':
+                                continue
+                            if line[0] in whitespace:
+                                if not curr_list:
+                                    raise IOError("Invalid aliases file")
+                                for email in line.split(','):
+                                    email = email.strip()
+                                    if email:
+                                        acl.setdefault(email, []).add(curr_list)
+                            else:
+                                tokens = line.split(' ', 1)
+                                curr_list = tokens[0]
+                                for email in tokens[1].split(','):
+                                    email = email.strip()
+                                    if email:
+                                        acl.setdefault(email, []).append(curr_list)
+                    except IOError as ioerr:
+                        print("Could not open file '" + aliases_path + "' for reading: " + str(ioerr))
+        finally:
+            lock.release()
+
+def can_access_email(session: plugins.session.SessionObject, email) -> bool:
+    """Determine if an email can be accessed by the current user"""
+    # If public email, it can always be accessed
+    if not email.get("private"):
+        return True
+    else:
+        # If user can access the list, they can read the email
+        if can_access_list(session, email.get("list_raw")):
+            return True
+        # If no access to list and email is private, deny access to email.
+        else:
+            return False
+
+# CB TODO there is a problem, here... ponymail will call this function for each and
+# every list, whereas we should rather have a function returning the lists the logged
+# user has access to.
+def can_access_list(session: plugins.session.SessionObject, listid) -> bool:
+    """Determine if a list can be accessed by the current user"""
+    # If logged in via a known oauth, we assume access for now...TO BE CHANGED
+    if session.credentials and session.credentials.authoritative:
+        populate_acl()
+        return listid in acl[session.credentials.email]
+    else:
+        return False

@@ -40,6 +40,6 @@ def can_access_email(session: plugins.session.SessionObject, email) -> bool:
 def can_access_list(session: plugins.session.SessionObject, listid) -> bool:
     """Determine if a list can be accessed by the current user"""
     if session.credentials and session.credentials.authoritative:
-        return listid.replace("@", ".") in session.credentials.acl
+        return listid.strip("<>").replace("@", ".") in session.credentials.acl
     else:
         return False
